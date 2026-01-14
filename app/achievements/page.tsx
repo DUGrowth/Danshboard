@@ -61,7 +61,7 @@ export default function AchievementsPage() {
           Your Achievements
         </h1>
         <p className="text-muted-foreground">
-          All the amazing things you've accomplished
+          All the amazing things you&apos;ve accomplished
         </p>
       </motion.div>
 

@@ -120,7 +120,7 @@ export default function Home() {
           >
             <div className="flex items-center space-x-2 mb-4">
               <Sparkles className="h-6 w-6 text-primary" />
-              <h2 className="text-2xl font-bold">Today's Wins</h2>
+              <h2 className="text-2xl font-bold">Today&apos;s Wins</h2>
             </div>
 
             <div className="space-y-4">

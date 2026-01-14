@@ -64,7 +64,7 @@ export default function DailyCheckInDialog({
         <DialogHeader>
           <DialogTitle className="text-2xl">Daily Check-In</DialogTitle>
           <DialogDescription>
-            How are you feeling today? Let's track your progress!
+            How are you feeling today? Let&apos;s track your progress!
           </DialogDescription>
         </DialogHeader>
 
