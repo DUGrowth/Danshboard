@@ -189,7 +189,7 @@ export default function TaskDispenser({ onTaskComplete }: TaskDispenserProps) {
 
             {currentTask.times_skipped > 0 && (
               <div className="mb-4 p-3 rounded-md bg-yellow-500/10 border border-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-sm">
-                ⚠️ You've skipped this {currentTask.times_skipped} time{currentTask.times_skipped > 1 ? 's' : ''}
+                ⚠️ You&apos;ve skipped this {currentTask.times_skipped} time{currentTask.times_skipped > 1 ? 's' : ''}
               </div>
             )}
 
