@@ -19,7 +19,7 @@ A personal productivity and gamification system designed specifically for ADHD. 
 - **Framework**: Next.js 14 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: SQLite (better-sqlite3)
+- **Database**: Vercel Postgres (PostgreSQL)
 - **Animations**: Framer Motion
 - **UI Components**: shadcn/ui (Radix UI primitives)
 - **Notifications**: react-hot-toast
@@ -29,14 +29,38 @@ A personal productivity and gamification system designed specifically for ADHD. 
 
 ## Getting Started 🚀
 
-### Installation
+### Quick Deploy to Vercel (Recommended)
+
+The easiest way to use Dan-shboard is to deploy it to Vercel:
+
+1. **Fork or Clone** this repository
+2. **Create a Vercel Account** at [vercel.com](https://vercel.com)
+3. **Import Project** to Vercel from GitHub
+4. **Add Postgres Database**:
+   - In your Vercel project, go to **Storage** → **Create Database** → **Postgres**
+   - Vercel will automatically set up environment variables
+5. **Deploy** - Vercel will build and deploy automatically
+6. **Initialize Database**: Visit `your-app-url.vercel.app/api/init` to create tables
+7. **Start using!** Visit your app URL
+
+### Local Development
 
 ```bash
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Run the development server
+# 2. Set up Vercel Postgres (or use local Postgres)
+# Create .env.local and add your database credentials
+cp .env.local.example .env.local
+
+# 3. Add your Postgres connection string to .env.local
+# Get this from Vercel Dashboard > Your Project > Storage > Postgres
+
+# 4. Run the development server
 npm run dev
+
+# 5. Initialize database (first time only)
+# Visit http://localhost:3000/api/init
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -62,11 +86,10 @@ Danshboard/
 │   ├── AccomplishmentList.tsx # Today's wins
 │   └── DailyCheckInDialog.tsx # Mood/energy tracker
 ├── lib/
-│   ├── db.ts             # SQLite database setup
+│   ├── db.ts             # Postgres database setup
 │   ├── types.ts          # TypeScript types
 │   └── utils.ts          # Utility functions
-└── data/
-    └── danshboard.db     # SQLite database (auto-created)
+└── .env.local.example    # Environment variables template
 ```
 
 ## Database Schema 📊
@@ -107,6 +130,41 @@ Potential features to add:
 - Data export
 - Mobile app (React Native)
 
+## Deployment 🚀
+
+### Deploy to Vercel
+
+```bash
+# Install Vercel CLI
+npm i -g vercel
+
+# Login to Vercel
+vercel login
+
+# Deploy to preview
+vercel
+
+# Deploy to production
+vercel --prod
+```
+
+After deploying:
+1. Add a Postgres database in Vercel Dashboard
+2. Visit `/api/init` to initialize database tables
+3. Start using the app!
+
+### Environment Variables
+
+Required environment variables (automatically set by Vercel when using Vercel Postgres):
+
+- `POSTGRES_URL` - PostgreSQL connection string
+- `POSTGRES_PRISMA_URL` - Prisma connection string (with pooling)
+- `POSTGRES_URL_NON_POOLING` - Direct connection string
+- `POSTGRES_USER` - Database user
+- `POSTGRES_HOST` - Database host
+- `POSTGRES_PASSWORD` - Database password
+- `POSTGRES_DATABASE` - Database name
+
 ## Development 💻
 
 ```bash
@@ -121,6 +179,9 @@ npm start
 
 # Run linter
 npm run lint
+
+# Initialize database (first time setup)
+curl http://localhost:3000/api/init
 ```
 
 ## License

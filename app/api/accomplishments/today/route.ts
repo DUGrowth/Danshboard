@@ -3,7 +3,7 @@ import { queries } from '@/lib/db';
 
 export async function GET() {
   try {
-    const accomplishments = queries.getTodayAccomplishments.all();
+    const accomplishments = await queries.getTodayAccomplishments();
     return NextResponse.json(accomplishments);
   } catch (error) {
     console.error('Error fetching today accomplishments:', error);

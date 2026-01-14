@@ -3,7 +3,7 @@ import { queries } from '@/lib/db';
 
 export async function GET() {
   try {
-    const accomplishments = queries.getAccomplishments.all(50);
+    const accomplishments = await queries.getAccomplishments(50);
     return NextResponse.json(accomplishments);
   } catch (error) {
     console.error('Error fetching accomplishments:', error);
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    const result = queries.addAccomplishment.run(
+    const result = await queries.addAccomplishment(
       title,
       description || null,
       category || 'general',
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.json({
-      id: result.lastInsertRowid,
+      id: result.id,
       message: 'Accomplishment logged!',
     });
   } catch (error) {

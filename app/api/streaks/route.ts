@@ -4,7 +4,7 @@ import { startOfDay, parseISO, differenceInDays } from 'date-fns';
 
 export async function GET() {
   try {
-    const streaks = queries.getStreaks.all();
+    const streaks = await queries.getStreaks();
     return NextResponse.json(streaks);
   } catch (error) {
     console.error('Error fetching streaks:', error);
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   try {
     const { streakId } = await request.json();
 
-    const streak = queries.getStreak.get(streakId) as any;
+    const streak = await queries.getStreak(streakId);
     if (!streak) {
       return NextResponse.json({ error: 'Streak not found' }, { status: 404 });
     }
@@ -53,17 +53,17 @@ export async function POST(request: Request) {
     const newBest = Math.max(newCount, streak.best_count);
 
     // Update streak
-    queries.updateStreak.run(newCount, newBest, today, streakId);
+    await queries.updateStreak(newCount, newBest, today, streakId);
 
     // Check for milestone celebrations
     const milestones = [3, 7, 14, 30, 60, 90, 180, 365];
     if (milestones.includes(newCount)) {
       celebration = true;
       milestone = newCount;
-      queries.addMilestone.run(streakId, newCount);
+      await queries.addMilestone(streakId, newCount);
     }
 
-    const updatedStreak = queries.getStreak.get(streakId);
+    const updatedStreak = await queries.getStreak(streakId);
 
     return NextResponse.json({
       streak: updatedStreak,

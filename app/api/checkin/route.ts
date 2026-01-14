@@ -3,7 +3,7 @@ import { queries } from '@/lib/db';
 
 export async function GET() {
   try {
-    const checkIn = queries.getTodayCheckIn.get();
+    const checkIn = await queries.getTodayCheckIn();
     return NextResponse.json(checkIn || null);
   } catch (error) {
     console.error('Error fetching check-in:', error);
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     // Check if already checked in today
-    const existing = queries.getTodayCheckIn.get();
+    const existing = await queries.getTodayCheckIn();
     if (existing) {
       return NextResponse.json(
         { error: 'Already checked in today', checkIn: existing },
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       );
     }
 
-    queries.addCheckIn.run(mood, energy, notes || null);
+    await queries.addCheckIn(mood, energy, notes || null);
 
     return NextResponse.json({
       message: 'Daily check-in recorded!',
