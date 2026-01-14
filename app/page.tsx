@@ -6,6 +6,8 @@ import StreakCard from "@/components/StreakCard";
 import AccomplishmentForm from "@/components/AccomplishmentForm";
 import AccomplishmentList from "@/components/AccomplishmentList";
 import DailyCheckInDialog from "@/components/DailyCheckInDialog";
+import WaterTracker from "@/components/WaterTracker";
+import StoicQuoteCard from "@/components/StoicQuoteCard";
 import { Sparkles } from "lucide-react";
 
 interface Streak {
@@ -99,7 +101,7 @@ export default function Home() {
         </p>
       </motion.div>
 
-      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
         {/* Left column: Streak */}
         <div className="space-y-6">
           {streaks.length > 0 && (
@@ -129,6 +131,25 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
+      </div>
+
+      {/* Bottom row: Water Tracker and Stoic Quote */}
+      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <WaterTracker />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <StoicQuoteCard />
+        </motion.div>
       </div>
 
       {/* Daily check-in dialog */}
