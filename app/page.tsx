@@ -10,6 +10,9 @@ import WaterTracker from "@/components/WaterTracker";
 import StoicQuoteCard from "@/components/StoicQuoteCard";
 import HourlyLogger from "@/components/HourlyLogger";
 import AccountabilityBuddy from "@/components/AccountabilityBuddy";
+import MicrobreakEnforcer from "@/components/MicrobreakEnforcer";
+import CrossDeviceMessaging from "@/components/CrossDeviceMessaging";
+import OcrNotes from "@/components/OcrNotes";
 import { Sparkles } from "lucide-react";
 
 interface Streak {
@@ -173,6 +176,36 @@ export default function Home() {
           transition={{ delay: 0.6 }}
         >
           <AccountabilityBuddy />
+        </motion.div>
+      </div>
+
+      {/* Fifth row: Microbreak Enforcer and Cross-Device Messaging */}
+      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <MicrobreakEnforcer />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <CrossDeviceMessaging />
+        </motion.div>
+      </div>
+
+      {/* Sixth row: OCR Notes */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.9 }}
+        >
+          <OcrNotes />
         </motion.div>
       </div>
 

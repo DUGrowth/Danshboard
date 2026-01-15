@@ -162,6 +162,54 @@ export async function initializeDatabase() {
       )
     `;
 
+    // Create microbreaks table (Phase 3)
+    await sql`
+      CREATE TABLE IF NOT EXISTS microbreaks (
+        id SERIAL PRIMARY KEY,
+        started_at TIMESTAMP NOT NULL,
+        completed_at TIMESTAMP,
+        duration_minutes INTEGER NOT NULL,
+        break_type TEXT NOT NULL,
+        game_played TEXT,
+        game_score INTEGER,
+        status TEXT DEFAULT 'active',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    // Create device_messages table (Phase 3)
+    await sql`
+      CREATE TABLE IF NOT EXISTS device_messages (
+        id SERIAL PRIMARY KEY,
+        message_text TEXT NOT NULL,
+        sender_device TEXT NOT NULL,
+        recipient_device TEXT,
+        priority TEXT DEFAULT 'normal',
+        category TEXT DEFAULT 'general',
+        is_read BOOLEAN DEFAULT false,
+        read_at TIMESTAMP,
+        expires_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    // Create ocr_notes table (Phase 3)
+    await sql`
+      CREATE TABLE IF NOT EXISTS ocr_notes (
+        id SERIAL PRIMARY KEY,
+        original_filename TEXT NOT NULL,
+        image_url TEXT,
+        extracted_text TEXT,
+        confidence_score REAL,
+        tags TEXT,
+        category TEXT DEFAULT 'general',
+        is_processed BOOLEAN DEFAULT false,
+        processed_at TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
     // Create default streak if none exists
     const { rows } = await sql`SELECT COUNT(*) as count FROM streaks`;
     if (rows[0].count === '0') {
@@ -563,6 +611,181 @@ export const queries = {
         MAX(streak_count) as best_streak,
         AVG(EXTRACT(EPOCH FROM (responded_at - scheduled_time))/60) as avg_response_minutes
       FROM buddy_checkins
+    `;
+    return rows[0];
+  },
+
+  // Microbreaks (Phase 3)
+  async getActiveBreak() {
+    const { rows } = await sql`
+      SELECT * FROM microbreaks
+      WHERE status = 'active'
+      ORDER BY started_at DESC
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  },
+
+  async startMicrobreak(durationMinutes: number, breakType: string) {
+    const { rows } = await sql`
+      INSERT INTO microbreaks (started_at, duration_minutes, break_type)
+      VALUES (CURRENT_TIMESTAMP, ${durationMinutes}, ${breakType})
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async completeMicrobreak(id: number, gamePlayed?: string, gameScore?: number, notes?: string) {
+    const { rows } = await sql`
+      UPDATE microbreaks
+      SET completed_at = CURRENT_TIMESTAMP,
+          status = 'completed',
+          game_played = ${gamePlayed || null},
+          game_score = ${gameScore || null},
+          notes = ${notes || null}
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async getMicrobreakStats(days: number = 7) {
+    const { rows } = await sql`
+      SELECT
+        COUNT(*) as total_breaks,
+        AVG(duration_minutes) as avg_duration,
+        COUNT(*) FILTER (WHERE status = 'completed') as completed,
+        COUNT(*) FILTER (WHERE game_played IS NOT NULL) as games_played
+      FROM microbreaks
+      WHERE created_at >= CURRENT_DATE - ${days}
+    `;
+    return rows[0];
+  },
+
+  async getRecentBreaks(limit: number = 10) {
+    const { rows } = await sql`
+      SELECT * FROM microbreaks
+      ORDER BY created_at DESC
+      LIMIT ${limit}
+    `;
+    return rows;
+  },
+
+  // Device Messages (Phase 3)
+  async getUnreadMessages(device?: string) {
+    const { rows } = device
+      ? await sql`
+          SELECT * FROM device_messages
+          WHERE is_read = false
+          AND (recipient_device = ${device} OR recipient_device IS NULL)
+          AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)
+          ORDER BY created_at DESC
+        `
+      : await sql`
+          SELECT * FROM device_messages
+          WHERE is_read = false
+          AND (expires_at IS NULL OR expires_at > CURRENT_TIMESTAMP)
+          ORDER BY created_at DESC
+        `;
+    return rows;
+  },
+
+  async sendDeviceMessage(
+    messageText: string,
+    senderDevice: string,
+    recipientDevice?: string,
+    priority?: string,
+    category?: string,
+    expiresIn?: number
+  ) {
+    const expiresAt = expiresIn
+      ? new Date(Date.now() + expiresIn * 60000).toISOString()
+      : null;
+
+    const { rows } = await sql`
+      INSERT INTO device_messages (
+        message_text, sender_device, recipient_device, priority, category, expires_at
+      )
+      VALUES (
+        ${messageText},
+        ${senderDevice},
+        ${recipientDevice || null},
+        ${priority || 'normal'},
+        ${category || 'general'},
+        ${expiresAt}
+      )
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async markMessageRead(id: number) {
+    const { rows } = await sql`
+      UPDATE device_messages
+      SET is_read = true, read_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async deleteExpiredMessages() {
+    await sql`
+      DELETE FROM device_messages
+      WHERE expires_at IS NOT NULL AND expires_at < CURRENT_TIMESTAMP
+    `;
+  },
+
+  async getRecentMessages(limit: number = 20) {
+    const { rows } = await sql`
+      SELECT * FROM device_messages
+      ORDER BY created_at DESC
+      LIMIT ${limit}
+    `;
+    return rows;
+  },
+
+  // OCR Notes (Phase 3)
+  async addOcrNote(filename: string, imageUrl?: string) {
+    const { rows } = await sql`
+      INSERT INTO ocr_notes (original_filename, image_url)
+      VALUES (${filename}, ${imageUrl || null})
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async updateOcrNote(id: number, extractedText: string, confidenceScore?: number) {
+    const { rows } = await sql`
+      UPDATE ocr_notes
+      SET extracted_text = ${extractedText},
+          confidence_score = ${confidenceScore || null},
+          is_processed = true,
+          processed_at = CURRENT_TIMESTAMP
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async getOcrNotes(category?: string) {
+    const { rows } = category
+      ? await sql`SELECT * FROM ocr_notes WHERE category = ${category} ORDER BY created_at DESC`
+      : await sql`SELECT * FROM ocr_notes ORDER BY created_at DESC`;
+    return rows;
+  },
+
+  async deleteOcrNote(id: number) {
+    await sql`DELETE FROM ocr_notes WHERE id = ${id}`;
+  },
+
+  async updateOcrNoteCategory(id: number, category: string, tags?: string[]) {
+    const { rows } = await sql`
+      UPDATE ocr_notes
+      SET category = ${category},
+          tags = ${tags ? JSON.stringify(tags) : null}
+      WHERE id = ${id}
+      RETURNING *
     `;
     return rows[0];
   },
