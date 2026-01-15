@@ -8,6 +8,8 @@ import AccomplishmentList from "@/components/AccomplishmentList";
 import DailyCheckInDialog from "@/components/DailyCheckInDialog";
 import WaterTracker from "@/components/WaterTracker";
 import StoicQuoteCard from "@/components/StoicQuoteCard";
+import HourlyLogger from "@/components/HourlyLogger";
+import AccountabilityBuddy from "@/components/AccountabilityBuddy";
 import { Sparkles } from "lucide-react";
 
 interface Streak {
@@ -133,8 +135,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Bottom row: Water Tracker and Stoic Quote */}
-      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+      {/* Second row: Water Tracker and Stoic Quote */}
+      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,6 +151,28 @@ export default function Home() {
           transition={{ delay: 0.4 }}
         >
           <StoicQuoteCard />
+        </motion.div>
+      </div>
+
+      {/* Third row: Hourly Logger */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <HourlyLogger />
+        </motion.div>
+      </div>
+
+      {/* Fourth row: Accountability Buddy */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <AccountabilityBuddy />
         </motion.div>
       </div>
 

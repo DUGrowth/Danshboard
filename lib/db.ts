@@ -112,6 +112,56 @@ export async function initializeDatabase() {
       )
     `;
 
+    // Create abandoned_projects table (Phase 2)
+    await sql`
+      CREATE TABLE IF NOT EXISTS abandoned_projects (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT,
+        original_start_date DATE,
+        last_touched_date DATE,
+        days_abandoned INTEGER DEFAULT 0,
+        revival_attempts INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'abandoned',
+        tags TEXT,
+        notes TEXT,
+        energy_required TEXT DEFAULT 'medium',
+        completion_percentage INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    // Create hourly_logs table (Phase 2)
+    await sql`
+      CREATE TABLE IF NOT EXISTS hourly_logs (
+        id SERIAL PRIMARY KEY,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        hour_block INTEGER NOT NULL,
+        accomplishment TEXT NOT NULL,
+        category TEXT DEFAULT 'general',
+        energy_level INTEGER,
+        mood_tag TEXT,
+        date DATE NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    // Create buddy_checkins table (Phase 2)
+    await sql`
+      CREATE TABLE IF NOT EXISTS buddy_checkins (
+        id SERIAL PRIMARY KEY,
+        scheduled_time TIMESTAMP NOT NULL,
+        check_in_type TEXT NOT NULL,
+        message TEXT NOT NULL,
+        user_response TEXT,
+        responded_at TIMESTAMP,
+        streak_count INTEGER DEFAULT 0,
+        missed_count INTEGER DEFAULT 0,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
     // Create default streak if none exists
     const { rows } = await sql`SELECT COUNT(*) as count FROM streaks`;
     if (rows[0].count === '0') {
@@ -358,5 +408,162 @@ export const queries = {
       LIMIT ${limit}
     `;
     return rows;
+  },
+
+  // Abandoned Projects (Phase 2)
+  async getAbandonedProjects(status?: string) {
+    const { rows } = status
+      ? await sql`SELECT * FROM abandoned_projects WHERE status = ${status} ORDER BY days_abandoned DESC`
+      : await sql`SELECT * FROM abandoned_projects ORDER BY days_abandoned DESC`;
+    return rows;
+  },
+
+  async addAbandonedProject(
+    name: string,
+    description?: string,
+    originalStartDate?: string,
+    tags?: string[],
+    energyRequired?: string,
+    completionPercentage?: number
+  ) {
+    const { rows } = await sql`
+      INSERT INTO abandoned_projects (
+        name, description, original_start_date, last_touched_date,
+        tags, energy_required, completion_percentage
+      )
+      VALUES (
+        ${name},
+        ${description || null},
+        ${originalStartDate || null},
+        ${originalStartDate || null},
+        ${tags ? JSON.stringify(tags) : null},
+        ${energyRequired || 'medium'},
+        ${completionPercentage || 0}
+      )
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async reviveProject(id: number) {
+    const { rows } = await sql`
+      UPDATE abandoned_projects
+      SET status = 'active',
+          revival_attempts = revival_attempts + 1,
+          last_touched_date = CURRENT_DATE,
+          days_abandoned = 0
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async updateProjectProgress(id: number, completionPercentage: number) {
+    const { rows } = await sql`
+      UPDATE abandoned_projects
+      SET completion_percentage = ${completionPercentage},
+          last_touched_date = CURRENT_DATE,
+          days_abandoned = 0
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async calculateAbandonedDays() {
+    await sql`
+      UPDATE abandoned_projects
+      SET days_abandoned = CURRENT_DATE - last_touched_date
+      WHERE status = 'abandoned'
+    `;
+  },
+
+  // Hourly Logs (Phase 2)
+  async getTodayHourlyLogs() {
+    const { rows } = await sql`
+      SELECT * FROM hourly_logs
+      WHERE date = CURRENT_DATE
+      ORDER BY hour_block ASC
+    `;
+    return rows;
+  },
+
+  async addHourlyLog(hourBlock: number, accomplishment: string, category?: string, energyLevel?: number, moodTag?: string) {
+    const { rows } = await sql`
+      INSERT INTO hourly_logs (hour_block, accomplishment, category, energy_level, mood_tag, date)
+      VALUES (${hourBlock}, ${accomplishment}, ${category || 'general'}, ${energyLevel || null}, ${moodTag || null}, CURRENT_DATE)
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async getHourlyLogStats(days: number = 7) {
+    const { rows } = await sql`
+      SELECT
+        hour_block,
+        COUNT(*) as log_count,
+        ROUND(AVG(energy_level), 1) as avg_energy
+      FROM hourly_logs
+      WHERE date >= CURRENT_DATE - ${days}
+      GROUP BY hour_block
+      ORDER BY hour_block ASC
+    `;
+    return rows;
+  },
+
+  // Accountability Buddy (Phase 2)
+  async getPendingBuddyCheckins() {
+    const { rows } = await sql`
+      SELECT * FROM buddy_checkins
+      WHERE status = 'pending'
+      ORDER BY scheduled_time ASC
+    `;
+    return rows;
+  },
+
+  async createBuddyCheckin(scheduledTime: string, checkInType: string, message: string) {
+    const { rows } = await sql`
+      INSERT INTO buddy_checkins (scheduled_time, check_in_type, message)
+      VALUES (${scheduledTime}, ${checkInType}, ${message})
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async respondToBuddyCheckin(id: number, response: string) {
+    const { rows } = await sql`
+      UPDATE buddy_checkins
+      SET user_response = ${response},
+          responded_at = CURRENT_TIMESTAMP,
+          status = 'completed',
+          streak_count = streak_count + 1
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async missedBuddyCheckin(id: number) {
+    const { rows } = await sql`
+      UPDATE buddy_checkins
+      SET status = 'missed',
+          missed_count = missed_count + 1,
+          streak_count = 0
+      WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async getBuddyStats() {
+    const { rows } = await sql`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'completed') as completed,
+        COUNT(*) FILTER (WHERE status = 'missed') as missed,
+        MAX(streak_count) as best_streak,
+        AVG(EXTRACT(EPOCH FROM (responded_at - scheduled_time))/60) as avg_response_minutes
+      FROM buddy_checkins
+    `;
+    return rows[0];
   },
 };
