@@ -15,6 +15,7 @@ import CrossDeviceMessaging from "@/components/CrossDeviceMessaging";
 import OcrNotes from "@/components/OcrNotes";
 import { RoutineDashboardWidget } from "@/components/RoutineDashboardWidget";
 import { MorningCheckinDialog, type MorningCheckinData } from "@/components/MorningCheckinDialog";
+import { NotificationPermission } from "@/components/NotificationPermission";
 import { Sparkles } from "lucide-react";
 
 interface Streak {
@@ -276,6 +277,9 @@ export default function Home() {
         onClose={() => setShowMorningCheckin(false)}
         onComplete={handleMorningCheckinComplete}
       />
+
+      {/* Notification permission prompt */}
+      <NotificationPermission />
     </div>
   );
 }

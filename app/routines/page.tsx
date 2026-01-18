@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { MorningCheckinDialog, type MorningCheckinData } from '@/components/MorningCheckinDialog';
 import { RoutineDashboardWidget } from '@/components/RoutineDashboardWidget';
+import { NotificationToggle } from '@/components/NotificationPermission';
 import { Trophy } from 'lucide-react';
 
 interface RoutineStreak {
@@ -81,12 +82,17 @@ export default function RoutinesPage() {
 
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-2">
-          Daily Routines
-        </h1>
-        <p className="text-slate-400">
-          Evening and morning routines for consistent ADHD-friendly structure
-        </p>
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-2">
+              Daily Routines
+            </h1>
+            <p className="text-slate-400">
+              Evening and morning routines for consistent ADHD-friendly structure
+            </p>
+          </div>
+          <NotificationToggle />
+        </div>
       </div>
 
       {/* Main content */}
