@@ -210,6 +210,65 @@ export async function initializeDatabase() {
       )
     `;
 
+    // Create routine_completions table (Daily Routine Manager)
+    await sql`
+      CREATE TABLE IF NOT EXISTS routine_completions (
+        id SERIAL PRIMARY KEY,
+        date DATE NOT NULL,
+        routine_type TEXT NOT NULL,
+        task_id TEXT NOT NULL,
+        completed BOOLEAN DEFAULT FALSE,
+        completed_at TIMESTAMP,
+        skipped BOOLEAN DEFAULT FALSE,
+        skip_reason TEXT,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_routine_completions_date ON routine_completions(date)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_routine_completions_type ON routine_completions(routine_type)`;
+
+    // Create routine_config table (Daily Routine Manager)
+    await sql`
+      CREATE TABLE IF NOT EXISTS routine_config (
+        id SERIAL PRIMARY KEY,
+        routine_type TEXT NOT NULL UNIQUE,
+        enabled BOOLEAN DEFAULT TRUE,
+        notification_enabled BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
+    // Create morning_checkins table (Daily Routine Manager)
+    await sql`
+      CREATE TABLE IF NOT EXISTS morning_checkins (
+        id SERIAL PRIMARY KEY,
+        date DATE NOT NULL,
+        checkin_time TIMESTAMP NOT NULL,
+        phone_outside_bedroom BOOLEAN,
+        actual_bedtime TEXT,
+        actual_lights_out TEXT,
+        sleep_quality INTEGER,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_morning_checkins_date ON morning_checkins(date)`;
+
+    // Create routine_streaks table (Daily Routine Manager)
+    await sql`
+      CREATE TABLE IF NOT EXISTS routine_streaks (
+        id SERIAL PRIMARY KEY,
+        streak_type TEXT NOT NULL UNIQUE,
+        current_streak INTEGER DEFAULT 0,
+        longest_streak INTEGER DEFAULT 0,
+        last_completion_date DATE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `;
+
     // Create default streak if none exists
     const { rows } = await sql`SELECT COUNT(*) as count FROM streaks`;
     if (rows[0].count === '0') {
@@ -785,6 +844,138 @@ export const queries = {
       SET category = ${category},
           tags = ${tags ? JSON.stringify(tags) : null}
       WHERE id = ${id}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  // Daily Routine Manager
+  async getRoutineCompletions(routineType: string, date: string) {
+    const { rows } = await sql`
+      SELECT * FROM routine_completions
+      WHERE routine_type = ${routineType} AND date = ${date}
+      ORDER BY created_at ASC
+    `;
+    return rows;
+  },
+
+  async insertRoutineCompletion(completion: {
+    date: string;
+    routine_type: string;
+    task_id: string;
+    completed: boolean;
+    skipped: boolean;
+    skip_reason?: string;
+    notes?: string;
+    completed_at: string;
+  }) {
+    const { rows } = await sql`
+      INSERT INTO routine_completions (
+        date, routine_type, task_id, completed, skipped, skip_reason, notes, completed_at
+      )
+      VALUES (
+        ${completion.date},
+        ${completion.routine_type},
+        ${completion.task_id},
+        ${completion.completed},
+        ${completion.skipped},
+        ${completion.skip_reason || null},
+        ${completion.notes || null},
+        ${completion.completed_at}
+      )
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async getMorningCheckin(date: string) {
+    const { rows } = await sql`
+      SELECT * FROM morning_checkins
+      WHERE date = ${date}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+    return rows[0] || null;
+  },
+
+  async insertMorningCheckin(checkin: {
+    date: string;
+    checkin_time: string;
+    phone_outside_bedroom: boolean;
+    actual_bedtime: string;
+    actual_lights_out: string;
+    sleep_quality: number;
+    notes?: string;
+  }) {
+    const { rows } = await sql`
+      INSERT INTO morning_checkins (
+        date, checkin_time, phone_outside_bedroom, actual_bedtime,
+        actual_lights_out, sleep_quality, notes
+      )
+      VALUES (
+        ${checkin.date},
+        ${checkin.checkin_time},
+        ${checkin.phone_outside_bedroom},
+        ${checkin.actual_bedtime},
+        ${checkin.actual_lights_out},
+        ${checkin.sleep_quality},
+        ${checkin.notes || null}
+      )
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async getRoutineStreak(streakType: string) {
+    const { rows } = await sql`
+      SELECT * FROM routine_streaks
+      WHERE streak_type = ${streakType}
+    `;
+    return rows[0] || null;
+  },
+
+  async getAllRoutineStreaks() {
+    const { rows } = await sql`
+      SELECT * FROM routine_streaks
+      ORDER BY current_streak DESC
+    `;
+    return rows;
+  },
+
+  async incrementRoutineStreak(streakType: string, date: string) {
+    const streak = await this.getRoutineStreak(streakType);
+
+    if (!streak) {
+      // Create new streak
+      const { rows } = await sql`
+        INSERT INTO routine_streaks (streak_type, current_streak, longest_streak, last_completion_date)
+        VALUES (${streakType}, 1, 1, ${date})
+        RETURNING *
+      `;
+      return rows[0];
+    }
+
+    const newStreak = streak.current_streak + 1;
+    const newLongest = Math.max(newStreak, streak.longest_streak);
+
+    const { rows } = await sql`
+      UPDATE routine_streaks
+      SET current_streak = ${newStreak},
+          longest_streak = ${newLongest},
+          last_completion_date = ${date},
+          updated_at = CURRENT_TIMESTAMP
+      WHERE streak_type = ${streakType}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async breakRoutineStreak(streakType: string) {
+    const { rows } = await sql`
+      UPDATE routine_streaks
+      SET current_streak = 0,
+          updated_at = CURRENT_TIMESTAMP
+      WHERE streak_type = ${streakType}
       RETURNING *
     `;
     return rows[0];

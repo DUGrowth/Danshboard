@@ -13,6 +13,8 @@ import AccountabilityBuddy from "@/components/AccountabilityBuddy";
 import MicrobreakEnforcer from "@/components/MicrobreakEnforcer";
 import CrossDeviceMessaging from "@/components/CrossDeviceMessaging";
 import OcrNotes from "@/components/OcrNotes";
+import { RoutineDashboardWidget } from "@/components/RoutineDashboardWidget";
+import { MorningCheckinDialog, type MorningCheckinData } from "@/components/MorningCheckinDialog";
 import { Sparkles } from "lucide-react";
 
 interface Streak {
@@ -34,11 +36,13 @@ export default function Home() {
   const [streaks, setStreaks] = useState<Streak[]>([]);
   const [accomplishments, setAccomplishments] = useState<Accomplishment[]>([]);
   const [showCheckInDialog, setShowCheckInDialog] = useState(false);
+  const [showMorningCheckin, setShowMorningCheckin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadData();
     checkDailyCheckIn();
+    checkMorningCheckin();
   }, []);
 
   const loadData = async () => {
@@ -73,6 +77,43 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to check daily check-in:", error);
+    }
+  };
+
+  const checkMorningCheckin = async () => {
+    try {
+      const now = new Date();
+      const isMorning = now.getHours() >= 6 && now.getHours() < 9;
+
+      if (isMorning) {
+        const today = now.toISOString().split('T')[0];
+        const res = await fetch(`/api/routines/morning-checkin?date=${today}`);
+        const data = await res.json();
+
+        if (!data.checkin) {
+          setTimeout(() => {
+            setShowMorningCheckin(true);
+          }, 2000);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to check morning check-in:", error);
+    }
+  };
+
+  const handleMorningCheckinComplete = async (data: MorningCheckinData) => {
+    try {
+      await fetch('/api/routines/morning-checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...data,
+          date: new Date().toISOString().split('T')[0]
+        })
+      });
+      setShowMorningCheckin(false);
+    } catch (error) {
+      console.error("Failed to save morning check-in:", error);
     }
   };
 
@@ -157,34 +198,45 @@ export default function Home() {
         </motion.div>
       </div>
 
-      {/* Third row: Hourly Logger */}
+      {/* Third row: Routine Manager */}
       <div className="max-w-6xl mx-auto mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
         >
-          <HourlyLogger />
+          <RoutineDashboardWidget />
         </motion.div>
       </div>
 
-      {/* Fourth row: Accountability Buddy */}
+      {/* Fourth row: Hourly Logger */}
       <div className="max-w-6xl mx-auto mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
-          <AccountabilityBuddy />
+          <HourlyLogger />
         </motion.div>
       </div>
 
-      {/* Fifth row: Microbreak Enforcer and Cross-Device Messaging */}
-      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
+      {/* Fifth row: Accountability Buddy */}
+      <div className="max-w-6xl mx-auto mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
+        >
+          <AccountabilityBuddy />
+        </motion.div>
+      </div>
+
+      {/* Sixth row: Microbreak Enforcer and Cross-Device Messaging */}
+      <div className="grid lg:grid-cols-2 gap-8 max-w-6xl mx-auto mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
         >
           <MicrobreakEnforcer />
         </motion.div>
@@ -192,18 +244,18 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
         >
           <CrossDeviceMessaging />
         </motion.div>
       </div>
 
-      {/* Sixth row: OCR Notes */}
+      {/* Seventh row: OCR Notes */}
       <div className="max-w-6xl mx-auto mb-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9 }}
+          transition={{ delay: 1.0 }}
         >
           <OcrNotes />
         </motion.div>
@@ -216,6 +268,13 @@ export default function Home() {
         onComplete={() => {
           loadData();
         }}
+      />
+
+      {/* Morning check-in dialog */}
+      <MorningCheckinDialog
+        isOpen={showMorningCheckin}
+        onClose={() => setShowMorningCheckin(false)}
+        onComplete={handleMorningCheckinComplete}
       />
     </div>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Trophy, Target, CheckSquare, Rocket } from "lucide-react";
+import { Trophy, Target, CheckSquare, Rocket, Moon } from "lucide-react";
 
 export default function NavBar() {
   return (
@@ -30,6 +30,9 @@ export default function NavBar() {
           <div className="flex items-center space-x-4">
             <NavLink href="/" icon={<Target className="h-4 w-4" />}>
               Dashboard
+            </NavLink>
+            <NavLink href="/routines" icon={<Moon className="h-4 w-4" />}>
+              Routines
             </NavLink>
             <NavLink href="/tasks" icon={<CheckSquare className="h-4 w-4" />}>
               Tasks
