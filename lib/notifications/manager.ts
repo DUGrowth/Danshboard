@@ -90,9 +90,10 @@ export class NotificationManager {
         });
 
         if (options.url) {
+          const url = options.url;
           notification.onclick = () => {
             window.focus();
-            window.location.href = options.url;
+            window.location.href = url;
             notification.close();
           };
         }
