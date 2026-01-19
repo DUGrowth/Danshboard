@@ -21,7 +21,7 @@ export default function NavBar() {
               className="flex items-center space-x-2"
             >
               <Trophy className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-primary to-gray-400 bg-clip-text text-transparent">
                 Dan-shboard
               </span>
             </motion.div>

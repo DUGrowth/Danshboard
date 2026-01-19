@@ -77,14 +77,14 @@ export default function RoutinesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-950 via-slate-900 to-black p-4 sm:p-8">
+    <main className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black p-4 sm:p-8">
       <Toaster position="top-right" />
 
       {/* Header */}
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex items-start justify-between mb-2">
           <div>
-            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-600 bg-clip-text text-transparent mb-2">
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-300 to-gray-500 bg-clip-text text-transparent mb-2">
               Daily Routines
             </h1>
             <p className="text-slate-400">
@@ -122,7 +122,7 @@ export default function RoutinesPage() {
                     {getStreakLabel(streak.streak_type)}
                   </div>
                   <div className="flex items-baseline space-x-2">
-                    <div className="text-3xl font-bold text-purple-500">
+                    <div className="text-3xl font-bold text-gray-400">
                       {streak.current_streak}
                     </div>
                     <div className="text-sm text-muted-foreground">

@@ -173,7 +173,7 @@ export default function MicrobreakEnforcer() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => startBreak(type.value, type.duration)}
-                className="p-4 bg-gradient-to-br from-orange-500/10 to-purple-500/10 border border-orange-500/30 rounded-lg hover:border-orange-500/50 transition-all"
+                className="p-4 bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/30 rounded-lg hover:border-gray-500/50 transition-all"
               >
                 <div className="text-3xl mb-2">{type.icon}</div>
                 <div className="text-sm font-medium text-card-foreground">{type.label}</div>
@@ -201,7 +201,7 @@ export default function MicrobreakEnforcer() {
               animate={{
                 width: `${(timeRemaining / (activeBreak.duration_minutes * 60)) * 100}%`
               }}
-              className="h-full bg-gradient-to-r from-orange-500 to-purple-500"
+              className="h-full bg-gradient-to-r from-gray-500 to-gray-600"
             />
           </div>
 
@@ -313,7 +313,7 @@ function MiniGame({
 
   if (game === 'breathing' && gameState) {
     return (
-      <div className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-lg text-center">
+      <div className="p-6 bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/30 rounded-lg text-center">
         <h3 className="text-lg font-semibold mb-4">Breathing Exercise</h3>
         <motion.div
           animate={{
@@ -349,7 +349,7 @@ function MiniGame({
 
   if (game === 'colors' && gameState) {
     return (
-      <div className="p-6 bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-pink-500/30 rounded-lg">
+      <div className="p-6 bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/30 rounded-lg">
         <h3 className="text-lg font-semibold mb-4 text-center">Color Match</h3>
         <p className="text-center mb-4">Click the <span className="font-bold">{gameState.targetColor}</span> box!</p>
         <div className="grid grid-cols-3 gap-2 mb-4">

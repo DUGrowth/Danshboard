@@ -140,7 +140,7 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-12"
       >
-        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-gray-400 to-gray-500 bg-clip-text text-transparent">
           Welcome to Dan-shboard
         </h1>
         <p className="text-xl text-muted-foreground">

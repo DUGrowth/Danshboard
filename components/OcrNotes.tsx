@@ -19,10 +19,10 @@ interface OcrNote {
 
 const CATEGORIES = [
   { value: 'general', label: 'General', color: 'bg-gray-500' },
-  { value: 'todo', label: 'To-Do', color: 'bg-blue-500' },
-  { value: 'idea', label: 'Idea', color: 'bg-purple-500' },
-  { value: 'meeting', label: 'Meeting Notes', color: 'bg-green-500' },
-  { value: 'personal', label: 'Personal', color: 'bg-pink-500' }
+  { value: 'todo', label: 'To-Do', color: 'bg-gray-600' },
+  { value: 'idea', label: 'Idea', color: 'bg-gray-400' },
+  { value: 'meeting', label: 'Meeting Notes', color: 'bg-gray-300' },
+  { value: 'personal', label: 'Personal', color: 'bg-gray-200' }
 ];
 
 export default function OcrNotes() {

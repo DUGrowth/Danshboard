@@ -25,12 +25,12 @@ export default function MoodCheckIn({ onMoodSelected, compact = false }: MoodChe
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const moodOptions: MoodOption[] = [
-    { mood: 'scattered', emoji: '🌪️', label: 'Scattered', color: 'from-yellow-500 to-orange-500' },
-    { mood: 'sharp', emoji: '🎯', label: 'Sharp', color: 'from-blue-500 to-purple-500' },
-    { mood: 'frustrated', emoji: '😤', label: 'Frustrated', color: 'from-red-500 to-pink-500' },
-    { mood: 'tired', emoji: '😴', label: 'Tired', color: 'from-indigo-500 to-blue-500' },
-    { mood: 'anxious', emoji: '😰', label: 'Anxious', color: 'from-purple-500 to-pink-500' },
-    { mood: 'motivated', emoji: '🚀', label: 'Motivated', color: 'from-green-500 to-teal-500' },
+    { mood: 'scattered', emoji: '🌪️', label: 'Scattered', color: 'from-gray-400 to-gray-500' },
+    { mood: 'sharp', emoji: '🎯', label: 'Sharp', color: 'from-gray-500 to-gray-600' },
+    { mood: 'frustrated', emoji: '😤', label: 'Frustrated', color: 'from-gray-600 to-gray-700' },
+    { mood: 'tired', emoji: '😴', label: 'Tired', color: 'from-gray-300 to-gray-400' },
+    { mood: 'anxious', emoji: '😰', label: 'Anxious', color: 'from-gray-500 to-gray-600' },
+    { mood: 'motivated', emoji: '🚀', label: 'Motivated', color: 'from-gray-400 to-gray-500' },
   ];
 
   const handleSubmit = async () => {

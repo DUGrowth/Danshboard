@@ -179,7 +179,7 @@ export default function AccountabilityBuddy() {
             <div className="text-xs text-muted-foreground">Missed</div>
           </div>
           <div className="bg-muted/30 rounded-lg p-3 text-center">
-            <div className="text-2xl font-bold text-purple-500">{stats.stats.responseRate}%</div>
+            <div className="text-2xl font-bold text-gray-400">{stats.stats.responseRate}%</div>
             <div className="text-xs text-muted-foreground">Response Rate</div>
           </div>
           <div className="bg-muted/30 rounded-lg p-3 text-center">
@@ -203,7 +203,7 @@ export default function AccountabilityBuddy() {
               key={checkin.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-gradient-to-br from-pink-500/10 to-purple-500/10 border border-pink-500/30 rounded-lg"
+              className="p-4 bg-gradient-to-br from-gray-500/10 to-gray-600/10 border border-gray-500/30 rounded-lg"
             >
               <div className="flex items-start space-x-3 mb-3">
                 <div className="text-2xl">{getTypeIcon(checkin.check_in_type)}</div>
@@ -275,8 +275,8 @@ export default function AccountabilityBuddy() {
 
       {/* Encouragement message */}
       {stats && stats.message && (
-        <div className="mt-6 p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg text-center">
-          <p className="text-sm text-purple-600 dark:text-purple-400">{stats.message}</p>
+        <div className="mt-6 p-3 bg-gray-500/10 border border-gray-500/20 rounded-lg text-center">
+          <p className="text-sm text-gray-400">{stats.message}</p>
         </div>
       )}
     </div>

@@ -17,11 +17,11 @@ interface HourlyLog {
 }
 
 const CATEGORIES = [
-  { value: 'work', label: 'Work', color: 'bg-blue-500' },
-  { value: 'learning', label: 'Learning', color: 'bg-purple-500' },
-  { value: 'health', label: 'Health', color: 'bg-green-500' },
-  { value: 'social', label: 'Social', color: 'bg-pink-500' },
-  { value: 'creative', label: 'Creative', color: 'bg-yellow-500' },
+  { value: 'work', label: 'Work', color: 'bg-gray-600' },
+  { value: 'learning', label: 'Learning', color: 'bg-gray-500' },
+  { value: 'health', label: 'Health', color: 'bg-gray-400' },
+  { value: 'social', label: 'Social', color: 'bg-gray-300' },
+  { value: 'creative', label: 'Creative', color: 'bg-gray-200' },
   { value: 'general', label: 'General', color: 'bg-gray-500' }
 ];
 
@@ -122,13 +122,13 @@ export default function HourlyLogger() {
         transition={{ delay: hour * 0.02 }}
         className={`relative p-2 rounded-lg border-2 transition-all cursor-pointer ${
           isCurrent
-            ? 'border-purple-500 bg-purple-500/10'
+            ? 'border-gray-400 bg-gray-400/10'
             : log
-            ? 'border-green-500/50 bg-green-500/10'
+            ? 'border-gray-500/50 bg-gray-500/10'
             : isMissing
-            ? 'border-yellow-500/50 bg-yellow-500/5'
+            ? 'border-gray-300/50 bg-gray-300/5'
             : 'border-border bg-muted/20'
-        } ${isPast ? 'hover:border-purple-500/50' : 'opacity-50'}`}
+        } ${isPast ? 'hover:border-gray-400/50' : 'opacity-50'}`}
         onClick={() => isPast && setSelectedHour(hour)}
       >
         <div className="text-xs font-medium text-center mb-1">
@@ -142,7 +142,7 @@ export default function HourlyLogger() {
           <div className="w-full h-1 rounded-full bg-border" />
         )}
         {isCurrent && (
-          <div className="absolute -top-1 -right-1 w-3 h-3 bg-purple-500 rounded-full animate-pulse" />
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-gray-400 rounded-full animate-pulse" />
         )}
       </motion.div>
     );
@@ -195,7 +195,7 @@ export default function HourlyLogger() {
       {/* Legend */}
       <div className="flex flex-wrap gap-4 mb-6 text-xs text-muted-foreground">
         <div className="flex items-center">
-          <div className="w-4 h-4 rounded border-2 border-purple-500 bg-purple-500/10 mr-2" />
+          <div className="w-4 h-4 rounded border-2 border-gray-400 bg-gray-400/10 mr-2" />
           Current hour
         </div>
         <div className="flex items-center">

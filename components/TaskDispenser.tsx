@@ -26,11 +26,11 @@ export default function TaskDispenser({ onTaskComplete }: TaskDispenserProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const timeOptions = [
-    { duration: 5, label: "5 min", emoji: "⚡", color: "from-yellow-500 to-orange-500" },
-    { duration: 15, label: "15 min", emoji: "🚀", color: "from-blue-500 to-purple-500" },
-    { duration: 30, label: "30 min", emoji: "💪", color: "from-purple-500 to-pink-500" },
-    { duration: 60, label: "1 hour", emoji: "🎯", color: "from-green-500 to-teal-500" },
-    { duration: 120, label: "2+ hours", emoji: "🏔️", color: "from-indigo-500 to-blue-600" },
+    { duration: 5, label: "5 min", emoji: "⚡", color: "from-gray-300 to-gray-400" },
+    { duration: 15, label: "15 min", emoji: "🚀", color: "from-gray-400 to-gray-500" },
+    { duration: 30, label: "30 min", emoji: "💪", color: "from-gray-500 to-gray-600" },
+    { duration: 60, label: "1 hour", emoji: "🎯", color: "from-gray-600 to-gray-700" },
+    { duration: 120, label: "2+ hours", emoji: "🏔️", color: "from-gray-700 to-gray-800" },
   ];
 
   const dispenseTask = async (timeAvailable: number) => {

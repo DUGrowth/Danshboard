@@ -151,8 +151,8 @@ export default function AbandonedProjectTracker() {
     <div className="bg-card border border-border rounded-lg p-6 shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-purple-500/10 rounded-lg">
-            <Rocket className="h-6 w-6 text-purple-500" />
+          <div className="p-2 bg-gray-500/10 rounded-lg">
+            <Rocket className="h-6 w-6 text-gray-400" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-card-foreground">Abandoned Projects</h2>
@@ -228,7 +228,7 @@ export default function AbandonedProjectTracker() {
               key={project.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-4 bg-muted/30 border border-border rounded-lg hover:border-purple-500/50 transition-all"
+              className="p-4 bg-muted/30 border border-border rounded-lg hover:border-gray-400/50 transition-all"
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">

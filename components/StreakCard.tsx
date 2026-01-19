@@ -74,7 +74,7 @@ export default function StreakCard({ streak, onUpdate }: StreakCardProps) {
     >
       {/* Animated background */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-primary/10 to-purple-600/10"
+        className="absolute inset-0 bg-gradient-to-br from-primary/10 to-gray-600/10"
         animate={{
           opacity: [0.3, 0.5, 0.3],
         }}
@@ -111,7 +111,7 @@ export default function StreakCard({ streak, onUpdate }: StreakCardProps) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="text-6xl font-bold bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent"
+              className="text-6xl font-bold bg-gradient-to-r from-primary to-gray-400 bg-clip-text text-transparent"
             >
               {count}
             </motion.div>

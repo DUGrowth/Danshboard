@@ -95,7 +95,7 @@ export function RoutineDashboardWidget() {
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${completionPercentage}%` }}
-          className="h-full bg-purple-500 rounded-full"
+          className="h-full bg-gray-400 rounded-full"
         />
       </div>
 
@@ -103,7 +103,7 @@ export function RoutineDashboardWidget() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-lg border-2 border-purple-500 bg-purple-500/10 mb-4"
+          className="p-4 rounded-lg border-2 border-gray-500 bg-gray-500/10 mb-4"
         >
           <div className="text-sm text-muted-foreground mb-1">Current Task</div>
           <div className="text-lg font-semibold mb-1">

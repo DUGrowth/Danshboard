@@ -68,8 +68,8 @@ export function NotificationPermission() {
             className="fixed bottom-4 right-4 max-w-sm bg-card border border-border rounded-lg shadow-2xl p-4 z-50"
           >
             <div className="flex items-start space-x-3">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <Bell className="h-5 w-5 text-purple-500" />
+              <div className="p-2 bg-gray-500/10 rounded-lg">
+                <Bell className="h-5 w-5 text-gray-400" />
               </div>
               <div className="flex-1">
                 <h3 className="font-semibold mb-1">Enable Notifications?</h3>
