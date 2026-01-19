@@ -269,6 +269,24 @@ export async function initializeDatabase() {
       )
     `;
 
+    // Create notification_preferences table
+    await sql`
+      CREATE TABLE IF NOT EXISTS notification_preferences (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT DEFAULT 'default',
+        notification_type TEXT NOT NULL,
+        enabled BOOLEAN DEFAULT TRUE,
+        custom_time TEXT,
+        interval_minutes INTEGER,
+        settings JSONB,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, notification_type)
+      )
+    `;
+    await sql`CREATE INDEX IF NOT EXISTS idx_notif_prefs_user ON notification_preferences(user_id)`;
+    await sql`CREATE INDEX IF NOT EXISTS idx_notif_prefs_type ON notification_preferences(notification_type)`;
+
     // Create default streak if none exists
     const { rows } = await sql`SELECT COUNT(*) as count FROM streaks`;
     if (rows[0].count === '0') {
@@ -976,6 +994,58 @@ export const queries = {
       SET current_streak = 0,
           updated_at = CURRENT_TIMESTAMP
       WHERE streak_type = ${streakType}
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  // Notification Preferences
+  async getAllNotificationPreferences(userId: string = 'default') {
+    const { rows } = await sql`
+      SELECT * FROM notification_preferences
+      WHERE user_id = ${userId}
+      ORDER BY notification_type
+    `;
+    return rows;
+  },
+
+  async getNotificationPreference(userId: string = 'default', notificationType: string) {
+    const { rows } = await sql`
+      SELECT * FROM notification_preferences
+      WHERE user_id = ${userId} AND notification_type = ${notificationType}
+    `;
+    return rows[0] || null;
+  },
+
+  async upsertNotificationPreference(
+    userId: string = 'default',
+    notificationType: string,
+    enabled: boolean,
+    customTime?: string,
+    intervalMinutes?: number,
+    settings?: any
+  ) {
+    const { rows } = await sql`
+      INSERT INTO notification_preferences (
+        user_id, notification_type, enabled, custom_time, interval_minutes, settings, updated_at
+      )
+      VALUES (${userId}, ${notificationType}, ${enabled}, ${customTime || null}, ${intervalMinutes || null}, ${JSON.stringify(settings || {})}, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, notification_type)
+      DO UPDATE SET
+        enabled = ${enabled},
+        custom_time = ${customTime || null},
+        interval_minutes = ${intervalMinutes || null},
+        settings = ${JSON.stringify(settings || {})},
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING *
+    `;
+    return rows[0];
+  },
+
+  async deleteNotificationPreference(userId: string = 'default', notificationType: string) {
+    const { rows } = await sql`
+      DELETE FROM notification_preferences
+      WHERE user_id = ${userId} AND notification_type = ${notificationType}
       RETURNING *
     `;
     return rows[0];

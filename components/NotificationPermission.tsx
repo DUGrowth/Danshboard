@@ -27,9 +27,9 @@ export function NotificationPermission() {
         }, 5000); // Show after 5 seconds
       }
 
-      // If granted, schedule routine notifications
+      // If granted, schedule all notifications
       if (currentPermission === 'granted') {
-        notificationManager.scheduleRoutineNotifications();
+        notificationManager.scheduleAllNotifications();
       }
     }
   }, []);
@@ -40,7 +40,7 @@ export function NotificationPermission() {
 
     if (result === 'granted') {
       toast.success('Notifications enabled! You\'ll get routine reminders.');
-      notificationManager.scheduleRoutineNotifications();
+      notificationManager.scheduleAllNotifications();
       setShowPrompt(false);
     } else if (result === 'denied') {
       toast.error('Notifications denied. Enable in browser settings to get reminders.');
@@ -133,7 +133,7 @@ export function NotificationToggle() {
 
       if (result === 'granted') {
         toast.success('Notifications enabled!');
-        notificationManager.scheduleRoutineNotifications();
+        notificationManager.scheduleAllNotifications();
       } else if (result === 'denied') {
         toast.error('Notifications denied. Check browser settings.');
       }
