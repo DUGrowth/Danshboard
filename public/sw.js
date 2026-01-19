@@ -1,12 +1,85 @@
-// Service Worker for Push Notifications
+// Service Worker for Push Notifications and Offline Support
+const CACHE_VERSION = 'dan-shboard-v1';
+const CACHE_NAME = `${CACHE_VERSION}::pwa`;
+
+// Files to cache for offline use
+const CACHED_FILES = [
+  '/',
+  '/manifest.json',
+  '/icon-192.png',
+  '/icon-512.png'
+];
+
 self.addEventListener('install', (event) => {
   console.log('Service Worker installing...');
-  self.skipWaiting();
+
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then((cache) => {
+        console.log('Caching app shell');
+        return cache.addAll(CACHED_FILES);
+      })
+      .then(() => self.skipWaiting())
+  );
 });
 
 self.addEventListener('activate', (event) => {
   console.log('Service Worker activating...');
-  event.waitUntil(clients.claim());
+
+  event.waitUntil(
+    caches.keys()
+      .then((cacheNames) => {
+        return Promise.all(
+          cacheNames
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => {
+              console.log('Deleting old cache:', name);
+              return caches.delete(name);
+            })
+        );
+      })
+      .then(() => clients.claim())
+  );
+});
+
+// Fetch strategy: Network first, fall back to cache
+self.addEventListener('fetch', (event) => {
+  // Skip cross-origin requests
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Clone the response before caching
+        const responseToCache = response.clone();
+
+        caches.open(CACHE_NAME)
+          .then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches.match(event.request)
+          .then((response) => {
+            if (response) {
+              return response;
+            }
+            // If not in cache, return offline page or error
+            return new Response('Offline - cached version not available', {
+              status: 503,
+              statusText: 'Service Unavailable',
+              headers: new Headers({
+                'Content-Type': 'text/plain'
+              })
+            });
+          });
+      })
+  );
 });
 
 self.addEventListener('push', (event) => {

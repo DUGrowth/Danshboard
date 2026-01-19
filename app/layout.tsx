@@ -19,6 +19,25 @@ const sourceSans = Source_Sans_3({
 export const metadata: Metadata = {
   title: "Dan-shboard - ADHD Productivity Gamified",
   description: "Your personal productivity and gamification system",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Dan-shboard",
+  },
+  icons: {
+    apple: [
+      { url: "/icon-152.png", sizes: "152x152", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
+  themeColor: "#141414",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
 };
 
 export default function RootLayout({
