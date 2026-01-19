@@ -77,9 +77,9 @@ export class NotificationManager {
           badge: '/badge-72.png',
           tag: options.tag || 'dan-shboard',
           requireInteraction: options.requireInteraction || false,
-          vibrate: [200, 100, 200],
+          vibrate: [200, 100, 200] as any,
           data: { url: options.url || '/' }
-        });
+        } as NotificationOptions);
       } else {
         // Fallback to local notification
         const notification = new Notification(title, {
